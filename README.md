@@ -3,11 +3,15 @@
 Discover the power of (basic) harness engineering
 Implement the same feature over and over again, improve the context to make it generate better an better versions of it
 
+Basic prompt, use the same unless instructed otherwise:
+
+    implement Feature: Stock reservation with expiry from readme.md.
+
 ## Steps
 1. No harness (do not create a AGENTS.md, or CLAUDE.md)
-2. Prompt about tests
+2. Prompt about tests (add a mention about the need for tests for new code in the prompt)
 3. Add test constraint into agents.md instead
-4. Add tests b4 refactoring into agents
+4. Add instruction about tests b4 refactoring into agents file
 5. Refactor it into what you want it to be
 6. Ask the agent to extract that knowledge, retry
 7. Have the agent do the code-review, instruct it to always run a code review when a feature is "done"
