@@ -1,9 +1,10 @@
 # Harness engineering kata
 
-Experiment with tweaking and tooling the harness of agents so they produce the result you want
+Experiment with tweaking and tooling the harness of agents so they produce the result you want.
+
 Implement the same feature over and over again, improve the harness to make it generate better an better versions of it
 
-By harness in this context we mean
+By harness in this context we mean whatever influences the agent's behavior, and whatever feedback mechanisms you put in place.
 - the AGENTS.md / CLAUDE.md file
 - skills
 - scripts (making results predictable)
@@ -15,7 +16,7 @@ By harness in this context we mean
 ## Steps
 For each step, throw away all code and get back to main, use this prompt, unless instructed otherwise:
 
-    implement Feature from readme.md.
+    implement the feature from feature.md
 
 ### 1. No Harness
 
@@ -64,14 +65,4 @@ java -cp target/classes com.kata.warehouse.Main
 ```
 
 
-
-## Missing feature to implement in the kata
-
-### Feature: Stock reservation with expiry
-
-1. Add command: `RESERVE;<customer>;<sku>;<qty>;<minutes>`
-2. Reserve only if enough available stock exists.
-3. Add command: `CONFIRM;<reservationId>` to convert reservation into a shipped order.
-4. Add command: `RELEASE;<reservationId>` to release stock manually.
-5. Reservations should expire automatically based on the configured minutes, returning stock to availability.
 
