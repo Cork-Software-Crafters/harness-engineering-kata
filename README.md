@@ -13,6 +13,18 @@ By harness in this context we mean whatever influences the agent's behavior, and
 - the README.md and other visible files in the root dir
 
 
+## Prerequisites
+
+Install quality checking tools (needed for steps 6-7):
+
+```bash
+# Python
+pip install -r python/requirements-dev.txt
+
+# Java — add checkstyle plugin to pom.xml (see "Quality tools by language" below)
+```
+
+
 ## Steps
 For each step, throw away all code and get back to main, use this prompt, unless instructed otherwise:
 
@@ -24,11 +36,11 @@ For each step, throw away all code and get back to main, use this prompt, unless
 
 ### 2. Add a Minimal Agent Instruction File
 
-  Create either AGENTS.md or CLAUDE.md and add a simple instruction such as: “Add full test coverage for new features.”
+  Create either AGENTS.md or CLAUDE.md and add a simple instruction such as: "Add full test coverage for new features."
 
 ### 3. Add Regression-Protection Guidance
 
-  Assume the agent may skip tests for existing untested code, and add an instruction like: “To protect against regressions, always add full coverage for existing code before modifying it.”
+  Assume the agent may skip tests for existing untested code, and add an instruction like: "To protect against regressions, always add full coverage for existing code before modifying it."
 
 ### 4. Refactor Until Quality Is Acceptable
 
@@ -41,93 +53,25 @@ For each step, throw away all code and get back to main, use this prompt, unless
 
 ### 6. Add a Code Quality Gate via Stop Hook (Reviewer Agent)
 
-  Add a Stop hook that spawns a reviewer sub-agent after each agent turn. The reviewer runs the linter, reads offending functions, and decides whether to block or allow. This uses LLM judgment to gate completion.
-
-  **Setup:**
-
-  Install quality checking tools:
+  Activate a Stop hook that spawns a reviewer sub-agent after each agent turn. The reviewer runs the linter, reads offending functions, and decides whether to block or allow.
 
   ```bash
-  # Python
-  pip install -r python/requirements-dev.txt
-
-  # Java
-  # See "Quality tools by language" section below
+  cp harness/step-6/settings.json .claude/settings.json
   ```
 
-  Create `.claude/settings.json`:
-
-  ```json
-  {
-    "hooks": {
-      "Stop": [
-        {
-          "hooks": [
-            {
-              "type": "agent",
-              "prompt": "Review all Python files in python/src/ for quality violations. Run: cd python && flake8 src/ to get violations. If there are real violations, return decision 'block' with specific refactoring suggestions. If clean, return decision 'allow'.",
-              "timeout": 60
-            }
-          ]
-        }
-      ]
-    }
-  }
-  ```
-
-  > **Important:** After creating or modifying `.claude/settings.json`, restart your Claude Code or Copilot session so the hooks are loaded.
+  Restart your Claude Code / Copilot session, then run the prompt.
 
 ### 7. Add a Mechanical Quality Gate via Stop Hook (Hard Block)
 
-  Replace the reviewer agent with a deterministic quality gate script. The Stop hook runs a linter and custom checks — if any violation exists, exit code 2 blocks the agent from finishing. The agent is forced to iterate until the code is clean.
-
-  This is the most effective technique discovered in the quality gate experiment (see [Discussion](#discussion) below).
-
-  **Setup:**
-
-  Create `.claude/hooks/stop-quality-gate.sh`:
+  Replace the reviewer agent with a deterministic quality gate. The Stop hook runs a linter and custom checks — if any violation exists, exit code 2 blocks the agent from finishing. The agent is forced to iterate until the code is clean. This is the most effective technique found in the quality gate experiment (see [Discussion](#discussion)).
 
   ```bash
-  #!/bin/bash
-  cd "$(git rev-parse --show-toplevel)/python" 2>/dev/null || exit 0
-  VIOLATIONS=$("$(git rev-parse --show-toplevel)/.claude/hooks/check-quality.sh" 2>&1)
-  if [ -n "$VIOLATIONS" ]; then
-    echo "QUALITY GATE FAILED — fix these violations before finishing:" >&2
-    echo "" >&2
-    echo "$VIOLATIONS" >&2
-    echo "" >&2
-    echo "Refactor: extract methods, reduce nesting, split files, introduce constants." >&2
-    exit 2
-  fi
-  exit 0
+  cp harness/step-7/settings.json .claude/settings.json
   ```
 
-  ```bash
-  chmod +x .claude/hooks/stop-quality-gate.sh
-  ```
+  Restart your Claude Code / Copilot session, then run the prompt.
 
-  Update `.claude/settings.json`:
-
-  ```json
-  {
-    "hooks": {
-      "Stop": [
-        {
-          "hooks": [
-            {
-              "type": "command",
-              "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/stop-quality-gate.sh"
-            }
-          ]
-        }
-      ]
-    }
-  }
-  ```
-
-  > **Important:** After creating or modifying hook scripts or `.claude/settings.json`, restart your Claude Code or Copilot session. Hooks are loaded at session start — changes to hook files are picked up on the next session, but changes to `settings.json` require a restart.
-
-  The quality rules are defined in `python/.flake8` and `.claude/hooks/check-quality.sh`. See those files for the full list of checks (function length, cognitive complexity, magic numbers, string constants, class attributes, file length).
+  The hook scripts (`.claude/hooks/stop-quality-gate.sh`, `.claude/hooks/check-quality.sh`) and linter config (`python/.flake8`) are already in the repo — the settings file above activates them.
 
 ### 8. Add Architectural Constraints
 
@@ -140,59 +84,6 @@ For each step, throw away all code and get back to main, use this prompt, unless
 ### 10. Add Debugging Capability and Extract a Skill
 
   Enable the agent to run the app in debug mode, introduce a bug, ask the agent to diagnose and fix it, and then extract that debugging workflow into a reusable skill added to the repository.
-
-
-## Quality tools by language
-
-### Python
-
-```bash
-pip install -r python/requirements-dev.txt
-# Includes: flake8, flake8-functions, flake8-cognitive-complexity,
-#           flake8-bugbear, flake8-simplify, wemake-python-styleguide,
-#           radon, xenon
-```
-
-Rules are configured in `python/.flake8`. Custom checks (file length, class instance attribute count) are in `.claude/hooks/check-quality.sh`.
-
-### Java
-
-Use [Checkstyle](https://checkstyle.org/) with a custom configuration:
-
-```xml
-<!-- checkstyle.xml -->
-<module name="Checker">
-  <module name="TreeWalker">
-    <module name="MethodLength"><property name="max" value="30"/></module>
-    <module name="ParameterNumber"><property name="max" value="4"/></module>
-    <module name="CyclomaticComplexity"><property name="max" value="10"/></module>
-    <module name="MagicNumber"/>
-    <module name="MultipleStringLiterals"><property name="allowedDuplicates" value="3"/></module>
-    <module name="ClassDataAbstractionCoupling"><property name="max" value="6"/></module>
-  </module>
-  <module name="FileLength"><property name="max" value="150"/></module>
-</module>
-```
-
-Add to `pom.xml`:
-
-```xml
-<plugin>
-  <groupId>org.apache.maven.plugins</groupId>
-  <artifactId>maven-checkstyle-plugin</artifactId>
-  <version>3.6.0</version>
-  <configuration>
-    <configLocation>checkstyle.xml</configLocation>
-    <failOnViolation>true</failOnViolation>
-  </configuration>
-</plugin>
-```
-
-Run: `mvn checkstyle:check`
-
-Adapt `.claude/hooks/stop-quality-gate.sh` to call `mvn -q checkstyle:check` instead of `flake8`.
-
-Alternatively, [ArchUnit](https://www.archunit.org/) can enforce architectural constraints (package dependencies, layer separation) as executable tests.
 
 
 ## Run
@@ -213,15 +104,27 @@ python main.py
 ```
 
 
+## Quality tools by language
+
+### Python
+
+Configured in `python/.flake8` and `.claude/hooks/check-quality.sh`. Checks: function length (30), cognitive complexity (10), magic numbers, string constant overuse, class instance attributes (6), file length (150 lines), max parameters (4).
+
+### Java
+
+Use [Checkstyle](https://checkstyle.org/) for the same checks. A starter `checkstyle.xml` covering method length, parameter count, cyclomatic complexity, magic numbers, string literals, and file length is in `java/checkstyle.xml`. Add the maven-checkstyle-plugin to `pom.xml` and adapt `.claude/hooks/stop-quality-gate.sh` to call `mvn -q checkstyle:check`.
+
+[ArchUnit](https://www.archunit.org/) can additionally enforce architectural constraints (package dependencies, layer separation) as executable tests.
+
+
 ## Discussion
 
 ### Quality gate experiment
 
-An experiment was conducted comparing 6 different harness techniques for making AI agents refactor proactively, across 3 rounds of increasing rule strictness. The full results are documented in [`docs/experiment-summary.md`](docs/experiment-summary.md).
+An experiment compared 6 harness techniques for making AI agents refactor proactively, across 3 rounds of increasing strictness. Full results: [`docs/experiment-summary.md`](docs/experiment-summary.md).
 
 **Techniques tested:** soft context injection (UserPromptSubmit hook), `ask`-based PreToolUse hooks (shell script and LLM agent), hard-blocking Stop hooks (shell script and LLM reviewer), and deferred enforcement (pre-commit violations log).
 
-**Key finding:** Mechanical hard blocking (Stop hook with exit code 2) is the only technique that reliably scales. The agent is prevented from finishing until a deterministic quality script returns exit 0. Every rule added to the script is enforced — the agent keeps iterating until the code is clean. Soft techniques (context injection, deferred logging) were consistently ignored. LLM-based reviewers worked partially but exercised judgment that sometimes let violations slide.
+**Key finding:** Mechanical hard blocking (Stop hook with exit code 2) is the only technique that reliably scales. Soft techniques (context injection, deferred logging) were consistently ignored. LLM-based reviewers worked partially but exercised judgment that sometimes let violations slide.
 
 **Conclusion:** The agent doesn't need to understand *why* it should refactor. It needs to be mechanically prevented from finishing until the code is clean. Understanding is optional; enforcement is not.
-
