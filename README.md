@@ -73,15 +73,11 @@ For each step, throw away all code and get back to main, use this prompt, unless
 
   The hook scripts (`.claude/hooks/stop-quality-gate.sh`, `.claude/hooks/check-quality.sh`) and linter config (`python/.flake8`) are already in the repo — the settings file above activates them.
 
-### 8. Add Architectural Constraints
-
-  Introduce architectural constraints (for example, ArchUnit-style rules) and verify whether the agent uses them to guide feedback and implementation decisions.
-
-### 9. Add a TDD Skill Through Research and Reapplication
+### 8. Add a TDD Skill Through Research and Reapplication
 
   Ask the agent to research what TDD is and how it applies to agent workflows, explain it clearly, create a dedicated TDD skill, and then re-implement the feature using that skill.
 
-### 10. Add Debugging Capability and Extract a Skill
+### 9. Add Debugging Capability and Extract a Skill
 
   Enable the agent to run the app in debug mode, introduce a bug, ask the agent to diagnose and fix it, and then extract that debugging workflow into a reusable skill added to the repository.
 
