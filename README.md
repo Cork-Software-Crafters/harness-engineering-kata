@@ -65,9 +65,15 @@ For each step, throw away all code and get back to main, use this prompt, unless
 ### Java
 
 ```bash
-cd java
-mvn -q compile
+mvn compile
 java -cp target/classes com.kata.warehouse.Main
+```
+## Test
+
+### Java
+
+```bash
+mvn test
 ```
 
 
