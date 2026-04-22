@@ -33,7 +33,10 @@ Add unit tests for new features
 
 ### 3. Add Regression-Protection Guidance
 
-  Assume the agent may skip tests for existing untested code, and add an instruction like: "To protect against regressions, always add full coverage for existing code before modifying it."
+  Assume the agent may skip tests for existing untested code, and add an instruction like: 
+```
+To protect against regressions, always add full coverage for existing code before modifying it.
+```
 
 ### 4. Refactor Until Quality Is Acceptable
 
