@@ -12,6 +12,8 @@ By harness in this context we mean whatever influences the agent's behavior, and
 - Process / workflow descriptions
 - the README.md and other visible files in the root dir
 
+## Prerequisites
+Java JDK and Apache Maven installed.
 
 ## Steps
 For each step, throw away all code and get back to main, use this prompt, unless instructed otherwise:
