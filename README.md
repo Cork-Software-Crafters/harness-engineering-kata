@@ -26,7 +26,10 @@ For each step, throw away all code and get back to main, in a new chat use this 
 
 ### 2. Add a Minimal Agent Instruction File
 
-  Create either AGENTS.md or CLAUDE.md and add a simple instruction such as: "Add full test coverage for new features."
+  Create either AGENTS.md or CLAUDE.md and add a simple instruction such as: 
+```
+Add unit tests for new features
+```
 
 ### 3. Add Regression-Protection Guidance
 
