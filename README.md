@@ -103,6 +103,6 @@ mvn test
 
 ### Java
 
-Use [Checkstyle](https://checkstyle.org/) for the checks. A starter `checkstyle.xml` covering method length, parameter count, cyclomatic complexity, magic numbers, string literals, and file length is in `checkstyle.xml`. Add the maven-checkstyle-plugin to `pom.xml` and adapt quality-gate to call `mvn -q checkstyle:check`.
+Use [Checkstyle](https://checkstyle.org/) for the checks. A starter `checkstyle.xml` covering method length, parameter count, cyclomatic complexity, magic numbers, string literals, and file length is in `checkstyle.xml`. Add the maven-checkstyle-plugin to `pom.xml` and adapt quality-gate to call `mvn checkstyle:checkstyle`.
 
 [ArchUnit](https://www.archunit.org/) can additionally enforce architectural constraints (package dependencies, layer separation) as executable tests.
