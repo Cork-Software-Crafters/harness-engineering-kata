@@ -40,7 +40,7 @@ Add unit tests for new features
 To protect against regressions, always add full coverage for existing code before modifying it.
 ```
 
-### 4. Add Regression-Protection Guidance
+### 4. Iterate to improve the Agent Instruction File
 Update the AGENTS.md file with additional information about your preferences for test design. For example, you might want it to use a particular test framework or assertions library like AssertJ.
 Or you could add new rules like: "When a new model or data class is added, make sure is in a separated file."
 
