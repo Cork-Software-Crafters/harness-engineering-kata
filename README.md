@@ -73,8 +73,7 @@ Implement the feature from feature.md
 ```
 
 ### Step 4: Iterate to improve the Agent Instruction File
-Update the *AGENTS.md* file with additional information about your preferences for test design. For example, you might want it to use a particular test framework or assertions library like AssertJ.
-Or you could add new rules like: "When a new model or data class is added, make sure is in a separated file."
+Update the *AGENTS.md* file with additional information about your preferences for test design. For example, you might want it to use a particular test framework or assertion library (e.g., AssertJ), name tests in a certain way, test only public methods, or also write acceptance tests.
 
 Repeat the process of reverting the code (while keeping your changes in the AGENTS.md file) and use a new context window with the same prompt every time until the code it writes has good enough tests.
 
@@ -84,7 +83,7 @@ At the end of the exercise, commit your code so you can resume with Part 2 in th
 
 ### Step 1: Refactor Until Quality Is Acceptable
 
-  Assume the initial code quality is weak, ask the agent to refactor repeatedly until you are reasonably satisfied, and then ask it to extract design principles from the conversation into a file such as
+Assume the initial code quality is weak, ask the agent to refactor repeatedly until you are reasonably satisfied, and then ask it to extract design principles from the conversation into a file such as
   docs/design-principles.md.
 
 ### Step 2: Reuse Design Principles and Retry
