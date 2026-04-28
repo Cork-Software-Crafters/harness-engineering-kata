@@ -1,5 +1,6 @@
 package com.kata.warehouse;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +16,24 @@ public class WarehouseDeskApp {
     private final List<String> eventLog = new ArrayList<>();
     private double cashBalance;
     private int nextOrderNumber;
+    private int nextReservationNumber;
+    private final Map<String, Reservation> reservations = new HashMap<>();
+
+    private static class Reservation {
+        String id;
+        String customer;
+        String sku;
+        int qty;
+        Instant expiryTime;
+
+        Reservation(String id, String customer, String sku, int qty, Instant expiryTime) {
+            this.id = id;
+            this.customer = customer;
+            this.sku = sku;
+            this.qty = qty;
+            this.expiryTime = expiryTime;
+        }
+    }
 
     public void seedData() {
         stockBySku.put("PEN-BLACK", 40);
@@ -34,6 +53,7 @@ public class WarehouseDeskApp {
 
         cashBalance = 300.0;
         nextOrderNumber = 1001;
+        nextReservationNumber = 5001;
     }
 
     public void runDemoDay() {
@@ -56,6 +76,8 @@ public class WarehouseDeskApp {
     }
 
     public void processLine(String line) {
+        expireReservations();
+        
         String[] parts = line.split(";");
         String type = parts[0];
 
@@ -144,6 +166,75 @@ public class WarehouseDeskApp {
             return;
         }
 
+        if ("RESERVE".equals(type)) {
+            String customer = parts[1];
+            String sku = parts[2];
+            int qty = parseInt(parts[3]);
+            int minutes = parseInt(parts[4]);
+            
+            int onHand = stockBySku.getOrDefault(sku, 0);
+            int reserved = reservedBySku.getOrDefault(sku, 0);
+            int available = onHand - reserved;
+            
+            if (available < qty) {
+                eventLog.add("cannot reserve " + qty + " of " + sku + " for " + customer + " - only " + available + " available");
+                return;
+            }
+            
+            String reservationId = "R" + nextReservationNumber;
+            nextReservationNumber = nextReservationNumber + 1;
+            Instant expiryTime = Instant.now().plusSeconds(minutes * 60L);
+            
+            reservations.put(reservationId, new Reservation(reservationId, customer, sku, qty, expiryTime));
+            reservedBySku.put(sku, reserved + qty);
+            
+            eventLog.add("reservation " + reservationId + " created for " + customer + " sku=" + sku + " qty=" + qty + " expires in " + minutes + " minutes");
+            return;
+        }
+
+        if ("CONFIRM".equals(type)) {
+            String reservationId = parts[1];
+            Reservation reservation = reservations.get(reservationId);
+            
+            if (reservation == null) {
+                eventLog.add("cannot confirm " + reservationId + " because it does not exist");
+                return;
+            }
+            
+            String orderId = "O" + nextOrderNumber;
+            nextOrderNumber = nextOrderNumber + 1;
+            orderSku.put(orderId, reservation.sku);
+            orderQty.put(orderId, reservation.qty);
+            
+            stockBySku.put(reservation.sku, stockBySku.getOrDefault(reservation.sku, 0) - reservation.qty);
+            reservedBySku.put(reservation.sku, reservedBySku.getOrDefault(reservation.sku, 0) - reservation.qty);
+            
+            double unitPrice = priceBySku.getOrDefault(reservation.sku, 0.0);
+            double orderTotal = unitPrice * reservation.qty;
+            cashBalance = cashBalance + orderTotal;
+            orderStatus.put(orderId, "SHIPPED");
+            
+            reservations.remove(reservationId);
+            eventLog.add("reservation " + reservationId + " confirmed and shipped as " + orderId + " to " + reservation.customer + " amount=" + orderTotal);
+            return;
+        }
+
+        if ("RELEASE".equals(type)) {
+            String reservationId = parts[1];
+            Reservation reservation = reservations.get(reservationId);
+            
+            if (reservation == null) {
+                eventLog.add("cannot release " + reservationId + " because it does not exist");
+                return;
+            }
+            
+            reservedBySku.put(reservation.sku, reservedBySku.getOrDefault(reservation.sku, 0) - reservation.qty);
+            reservations.remove(reservationId);
+            
+            eventLog.add("reservation " + reservationId + " released for " + reservation.customer + " sku=" + reservation.sku + " qty=" + reservation.qty);
+            return;
+        }
+
         eventLog.add("unknown command: " + line);
     }
 
@@ -153,6 +244,24 @@ public class WarehouseDeskApp {
 
     private double parseDouble(String value) {
         return Double.parseDouble(value.trim());
+    }
+
+    private void expireReservations() {
+        Instant now = Instant.now();
+        List<String> toRemove = new ArrayList<>();
+        
+        for (Map.Entry<String, Reservation> entry : reservations.entrySet()) {
+            Reservation reservation = entry.getValue();
+            if (reservation.expiryTime.isBefore(now)) {
+                toRemove.add(entry.getKey());
+                reservedBySku.put(reservation.sku, reservedBySku.getOrDefault(reservation.sku, 0) - reservation.qty);
+                eventLog.add("reservation " + reservation.id + " expired for " + reservation.customer + " sku=" + reservation.sku + " qty=" + reservation.qty);
+            }
+        }
+        
+        for (String id : toRemove) {
+            reservations.remove(id);
+        }
     }
 
     public void printEndOfDayReport() {
@@ -188,5 +297,13 @@ public class WarehouseDeskApp {
         for (String event : eventLog) {
             System.out.println(" - " + event);
         }
+    }
+
+    public List<String> getEventLog() {
+        return eventLog;
+    }
+
+    public double getCashBalance() {
+        return cashBalance;
     }
 }
