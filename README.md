@@ -57,9 +57,14 @@ Implement the feature from feature.md
 
 Throw away all code generated in previous step.
 
-Assume the agent may skip tests for existing untested code, and add an instruction like: 
+Assume the agent may skip tests for existing untested code, and add to the *AGENTS.md* file an instruction like: 
 ```
 To protect against regressions, always add full coverage for existing code before modifying it.
+```
+
+In a new chat, promt:
+```
+Implement the feature from feature.md
 ```
 
 ### Step 4: Iterate to improve the Agent Instruction File
