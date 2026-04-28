@@ -44,8 +44,10 @@ Implement the feature from feature.md
 Throw away all code generated in previous step.
 
 Create an *AGENTS.md* file and add a simple instruction such as: 
-```
-Add unit tests for new features
+
+**AGENTS.md**
+```markdown
+Add unit tests for new features.
 ```
 
 In a new chat, promt:
@@ -57,9 +59,12 @@ Implement the feature from feature.md
 
 Throw away all code generated in previous step.
 
-Assume the agent may skip tests for existing untested code, and add to the *AGENTS.md* file an instruction like: 
-```
-To protect against regressions, always add full coverage for existing code before modifying it.
+Assume the agent may skip tests for existing untested code, and add to the *AGENTS.md* file a new instruction like: 
+
+**AGENTS.md**
+```diff
+Add unit tests for new features.
++ To protect against regressions, always add full coverage for existing code before modifying it.
 ```
 
 In a new chat, promt:
