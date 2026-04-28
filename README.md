@@ -6,10 +6,10 @@ Implement the same feature over and over again, improve the harness to make it g
 
 By harness in this context we mean whatever influences the agent's behavior, and whatever feedback mechanisms you put in place.
 - the AGENTS.md / CLAUDE.md file
-- skills
+- Skills
 - scripts (making results predictable)
 - Architectural documents, and constraints (like arch unit)
-- Process / workflow descriptions
+- Process / Workflow descriptions
 - the README.md and other visible files in the root dir
 
 ## Prerequisites
@@ -19,18 +19,16 @@ By harness in this context we mean whatever influences the agent's behavior, and
 > [!NOTE]
 > For consistency, we will all use the free SWE‑1.6 model.
 
-
 > [!WARNING]
 > Deactivate any global rules you may have defined before starting.
+
+> [!WARNING]
 > Start each step in a new chat to ensure a clean context.
 
 
 ## Steps
-For each step, throw away all code and get back to main, in a new chat use this prompt, unless instructed otherwise:
 
-    implement the feature from feature.md
-
-## Part 1
+### Part 1
 
 ### Step 1: No Harness
 
@@ -43,25 +41,34 @@ Implement the feature from feature.md
 
 ### Step 2: Add a Minimal Agent Instruction File
 
-  Create either AGENTS.md or CLAUDE.md and add a simple instruction such as: 
+Throw away all code generated in previous step.
+
+Create an *AGENTS.md* file and add a simple instruction such as: 
 ```
 Add unit tests for new features
 ```
 
+In a new chat, promt:
+```
+Implement the feature from feature.md
+```
+
 ### Step 3: Add Regression-Protection Guidance
 
-  Assume the agent may skip tests for existing untested code, and add an instruction like: 
+Throw away all code generated in previous step.
+
+Assume the agent may skip tests for existing untested code, and add an instruction like: 
 ```
 To protect against regressions, always add full coverage for existing code before modifying it.
 ```
 
 ### Step 4: Iterate to improve the Agent Instruction File
-Update the AGENTS.md file with additional information about your preferences for test design. For example, you might want it to use a particular test framework or assertions library like AssertJ.
+Update the *AGENTS.md* file with additional information about your preferences for test design. For example, you might want it to use a particular test framework or assertions library like AssertJ.
 Or you could add new rules like: "When a new model or data class is added, make sure is in a separated file."
 
 Repeat the process of reverting the code (while keeping your changes in the AGENTS.md file) and use a new context window with the same prompt every time until the code it writes has good enough tests.
 
-At the end of the exercise, commit your code so you can resume with Part 2 in the next learning hour.
+At the end of the exercise, commit your code so you can resume with Part 2 in the next Learning Hour.
 
 ## Part 2
 
