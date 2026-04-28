@@ -83,24 +83,23 @@ At the end of the exercise, commit your code so you can resume with Part 2 in th
 
 ### Step 1: Refactor Until Quality Is Acceptable
 
-Assume the initial code quality is weak, ask the agent to refactor repeatedly until you are reasonably satisfied, and then ask it to extract design principles from the conversation into a file such as
-  docs/design-principles.md.
+Assume the initial code quality is weak, ask the agent to refactor repeatedly until you are reasonably satisfied, and then ask it to extract design principles from the conversation into a file such as *docs/design-principles.md*.
 
 ### Step 2: Reuse Design Principles and Retry
 
-  Reference docs/design-principles.md from AGENTS.md or CLAUDE.md, then restart from scratch and compare whether the resulting code is similar to the improved result from the first iteration.
+Reference *docs/design-principles.md* from AGENTS.md, then restart from scratch and compare whether the resulting code is similar to the improved result from the first iteration.
 
-### Step 3: Add a Code Quality Gate via Hooks
+### Step 3: Add a Deterministic Code Quality Gate via Skill
+We will define a Windsurf Cascade Skill to enforce code quality automatically using static analysis.
+Windsurf Skills let you package repeatable workflows (like linting and code checks) that the agent can execute as part of its iteration loop.
+See: https://docs.windsurf.com/windsurf/cascade/skills
 
-  Experiment adding a stop Hook in [Cascade](https://docs.windsurf.com/windsurf/cascade/hooks) or [Claude](https://code.claude.com/docs/en/hooks). The reviewer runs the linter, reads offending functions, and decides whether to block or allow.
+This Skill will act as a mechanical quality gate:
+- It runs Checkstyle.
+- If any violation is found, it fails.
+- The agent must fix the code before continuing.
 
-  Restart your Cascade / Claude Code / Copilot session, then run the prompt.
-
-### Step 4: Add a Mechanical Quality Gate via Stop Hook (Hard Block)
-
-  Replace the reviewer agent with a deterministic quality gate. The Stop hook runs a linter and custom checks — if any violation exists, exit code 2 blocks the agent from finishing. The agent is forced to iterate until the code is clean. 
-
-  Restart your Claude Code / Copilot session, then run the prompt.
+Once you have the Skill defined, restart from scratch and compare whether the resulting code is similar to the improved result from the previous iterations.
 
 ## Part 3
 
