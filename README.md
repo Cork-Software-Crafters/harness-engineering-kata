@@ -35,7 +35,7 @@ By harness in this context we mean whatever influences the agent's behavior, and
 Start without any harness files, and do not create AGENTS.md or CLAUDE.md.
 
 Use this prompt:
-```
+```console
 Implement the feature from feature.md
 ```
 
@@ -49,7 +49,7 @@ Add unit tests for new features
 ```
 
 In a new chat, promt:
-```
+```console
 Implement the feature from feature.md
 ```
 
@@ -63,7 +63,7 @@ To protect against regressions, always add full coverage for existing code befor
 ```
 
 In a new chat, promt:
-```
+```console
 Implement the feature from feature.md
 ```
 
