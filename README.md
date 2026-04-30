@@ -87,7 +87,7 @@ Assume the initial code quality is weak, ask the agent to refactor repeatedly un
 
 ### Step 2: Reuse Design Principles and Retry
 
-Reference *docs/design-principles.md* from AGENTS.md, then restart from scratch and compare whether the resulting code is similar to the improved result from the first iteration.
+Reference *docs/design-principles.md* in AGENTS.md, then restart from scratch and compare whether the resulting code is similar to the improved result from the first iteration.
 
 ### Step 3: Add a Deterministic Code Quality Gate via Skill
 We will define a Windsurf Cascade Skill to enforce code quality automatically using static analysis.
