@@ -95,9 +95,9 @@ Windsurf Skills let you package repeatable workflows (like linting and code chec
 See: https://docs.windsurf.com/windsurf/cascade/skills
 
 This Skill will act as a mechanical quality gate:
-- It runs [Checkstyle](#checkstyle).
-- If any violation is found, it fails.
-- The agent must fix the code before continuing.
+1. Run [Checkstyle](#checkstyle).
+2. Fail if any violation are found.
+3. Fix the code before continuing.
 
 Once you have the Skill defined, restart from scratch and compare whether the resulting code is similar to the improved result from the previous iterations.
 
